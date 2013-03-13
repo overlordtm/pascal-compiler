@@ -1,0 +1,9 @@
+*.class
+*~
+.project
+.classpath
+.externalToolBuilders
+# Package Files #
+*.jar
+*.war
+*.ear
