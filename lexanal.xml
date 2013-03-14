@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <lexanal>
-<terminal token="BOOL_CONST" lexeme="true" line="1" column="1"/>
+<terminal token="BOOL" line="1" column="1"/>
+<terminal token="BOOL_CONST" lexeme="true" line="1" column="9"/>
 <terminal token="BOOL_CONST" lexeme="false" line="2" column="1"/>
+<terminal token="INT" line="3" column="1"/>
+<terminal token="WHILE" line="4" column="1"/>
+<terminal token="BOOL" line="5" column="1"/>
+<terminal token="ADD" line="5" column="9"/>
+<terminal token="INT_CONST" lexeme="12553" line="5" column="10"/>
+<terminal token="PROCEDURE" line="6" column="1"/>
+<terminal token="WHILE" line="6" column="11"/>
+<terminal token="VAR" line="7" column="1"/>
+<terminal token="IDENTIFIER" lexeme="zoki" line="7" column="5"/>
+<terminal token="BOOL" line="7" column="10"/>
+<terminal token="BOOL_CONST" lexeme="true" line="7" column="18"/>
+<terminal token="INT_CONST" lexeme="1" line="8" column="1"/>
+<terminal token="BOOL" line="8" column="2"/>
 </lexanal>
