@@ -49,8 +49,9 @@ import compiler.synanal.*;
 letter          = [A-Za-z]
 digit           = [0-9]
 alphanumeric	= {letter}|{digit}
-integer			= {digit}+
+integer_const	= {digit}+
 identifier      = {letter}({alphanumeric}|_)*
+char_const		= '[^'\n]'|''
 whitespace		= [ \n\t]
 comment_body	= [^{}]*
 
@@ -111,8 +112,8 @@ comment_body	= [^{}]*
 	
 	/* constants for atomic types */
 	"true"|"false"		{ return sym(PascalTok.BOOL_CONST); }
-	{integer}			{ return sym(PascalTok.INT_CONST); }
-	
+	{integer_const}			{ return sym(PascalTok.INT_CONST); }
+	{char_const}		{ return sym(PascalTok.CHAR_CONST); }
 	/* identifiers */
 	
 	{identifier}		{ return sym(PascalTok.IDENTIFIER); }
