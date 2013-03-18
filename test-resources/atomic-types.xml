@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<lexanal>
+<terminal token="BOOL" line="1" column="1"/>
+<terminal token="IDENTIFIER" lexeme="lOl" line="1" column="9"/>
+<terminal token="CHAR" line="2" column="1"/>
+<terminal token="IDENTIFIER" lexeme="I6" line="2" column="6"/>
+<terminal token="INT" line="3" column="1"/>
+<terminal token="IDENTIFIER" lexeme="_i3" line="3" column="9"/>
+</lexanal>

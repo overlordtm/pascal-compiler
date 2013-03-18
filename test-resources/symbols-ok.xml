@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<lexanal>
+<terminal token="ASSIGN" line="1" column="1"/>
+<terminal token="COLON" line="1" column="4"/>
+<terminal token="COMMA" line="1" column="6"/>
+<terminal token="DOT" line="1" column="8"/>
+<terminal token="DOTS" line="1" column="10"/>
+<terminal token="LBRACKET" line="1" column="13"/>
+<terminal token="LPARENTHESIS" line="1" column="15"/>
+<terminal token="RBRACKET" line="1" column="17"/>
+<terminal token="RPARENTHESIS" line="1" column="19"/>
+<terminal token="SEMIC" line="1" column="21"/>
+<terminal token="ADD" line="1" column="23"/>
+<terminal token="EQU" line="1" column="25"/>
+<terminal token="GEQ" line="1" column="27"/>
+<terminal token="GTH" line="1" column="30"/>
+<terminal token="LTH" line="1" column="32"/>
+<terminal token="LEQ" line="1" column="34"/>
+<terminal token="MUL" line="1" column="37"/>
+<terminal token="NEQ" line="1" column="39"/>
+<terminal token="PTR" line="1" column="42"/>
+<terminal token="SUB" line="1" column="44"/>
+</lexanal>

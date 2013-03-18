@@ -1,6 +1,7 @@
 *.class
 *~
 bin/
+PascalLex.java
 .project
 .classpath
 .externalToolBuilders

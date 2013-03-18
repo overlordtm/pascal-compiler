@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<lexanal>
+<terminal token="AND" line="1" column="1"/>
+<terminal token="ARRAY" line="1" column="5"/>
+<terminal token="BEGIN" line="1" column="11"/>
+<terminal token="CONST" line="1" column="17"/>
+<terminal token="DIV" line="1" column="23"/>
+<terminal token="DO" line="1" column="27"/>
+<terminal token="ELSE" line="1" column="30"/>
+<terminal token="END" line="1" column="35"/>
+<terminal token="FOR" line="1" column="39"/>
+<terminal token="FUNCTION" line="1" column="43"/>
+<terminal token="IF" line="1" column="52"/>
+<terminal token="NIL" line="1" column="55"/>
+<terminal token="NOT" line="1" column="59"/>
+<terminal token="OF" line="1" column="63"/>
+<terminal token="OR" line="1" column="66"/>
+<terminal token="PROCEDURE" line="1" column="69"/>
+<terminal token="PROGRAM" line="1" column="79"/>
+<terminal token="RECORD" line="2" column="1"/>
+<terminal token="THEN" line="2" column="8"/>
+<terminal token="TO" line="2" column="13"/>
+<terminal token="TYPE" line="2" column="16"/>
+<terminal token="VAR" line="2" column="21"/>
+<terminal token="WHILE" line="2" column="25"/>
+</lexanal>
