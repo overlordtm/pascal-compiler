@@ -37,9 +37,6 @@ import compiler.synanal.*;
     private PascalSym sym(int type) {
         return new PascalSym(type, yyline + 1, yycolumn + 1, yytext());
     }
-    private PascalSym sym(int type, String sym) {
-        return new PascalSym(type, yyline + 1, yycolumn + 1, sym);
-    }
 %}
 
 %eof{
