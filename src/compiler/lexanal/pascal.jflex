@@ -52,6 +52,7 @@ letter          = [A-Za-z]
 digit           = [0-9]
 alphanumeric	= {letter}|{digit}
 integer_const	= {digit}+
+char_const      = ''''|'[^']'
 identifier      = ({letter}|_)({alphanumeric}|_)*
 whitespace		= [ \n\t]
 comment_body	= [^{}]*
@@ -115,10 +116,7 @@ comment_body	= [^{}]*
     "true"|"false"     { return sym(PascalTok.BOOL_CONST); }
     {integer_const}    { return sym(PascalTok.INT_CONST); }
 
-    ''''                { return sym(PascalTok.CHAR_CONST, "'"); }
-    '[^']'              { String str = yytext();
-                            return sym(PascalTok.CHAR_CONST, str.substring(1, str.length() - 1));
-                        }
+    {char_const}       { return sym(PascalTok.CHAR_CONST); }
 
     /* identifiers */
     {identifier}        { return sym(PascalTok.IDENTIFIER); }
