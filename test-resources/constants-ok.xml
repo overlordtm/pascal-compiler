@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<lexanal>
+<terminal token="CHAR_CONST" lexeme="&#39; &#39;" line="3" column="1"/>
+<terminal token="CHAR_CONST" lexeme="&#39;!&#39;" line="3" column="5"/>
+<terminal token="CHAR_CONST" lexeme="&#39;&#34;&#39;" line="3" column="9"/>
+<terminal token="CHAR_CONST" lexeme="&#39;#&#39;" line="3" column="13"/>
+<terminal token="CHAR_CONST" lexeme="&#39;$&#39;" line="3" column="17"/>
+<terminal token="CHAR_CONST" lexeme="&#39;%&#39;" line="3" column="21"/>
+<terminal token="CHAR_CONST" lexeme="&#39;&#38;&#39;" line="4" column="1"/>
+<terminal token="CHAR_CONST" lexeme="&#39;(&#39;" line="4" column="5"/>
+<terminal token="CHAR_CONST" lexeme="&#39;)&#39;" line="4" column="9"/>
+<terminal token="CHAR_CONST" lexeme="&#39;*&#39;" line="4" column="13"/>
+<terminal token="CHAR_CONST" lexeme="&#39;+&#39;" line="4" column="17"/>
+<terminal token="CHAR_CONST" lexeme="&#39;,&#39;" line="4" column="21"/>
+<terminal token="CHAR_CONST" lexeme="&#39;-&#39;" line="5" column="1"/>
+<terminal token="CHAR_CONST" lexeme="&#39;.&#39;" line="5" column="5"/>
+<terminal token="CHAR_CONST" lexeme="&#39;/&#39;" line="5" column="9"/>
+<terminal token="CHAR_CONST" lexeme="&#39;:&#39;" line="5" column="13"/>
+<terminal token="CHAR_CONST" lexeme="&#39;;&#39;" line="5" column="17"/>
+<terminal token="CHAR_CONST" lexeme="&#39;&#60;&#39;" line="5" column="21"/>
+<terminal token="CHAR_CONST" lexeme="&#39;=&#39;" line="6" column="1"/>
+<terminal token="CHAR_CONST" lexeme="&#39;&#62;&#39;" line="6" column="5"/>
+<terminal token="CHAR_CONST" lexeme="&#39;?&#39;" line="6" column="9"/>
+<terminal token="CHAR_CONST" lexeme="&#39;@&#39;" line="6" column="13"/>
+<terminal token="CHAR_CONST" lexeme="&#39;[&#39;" line="6" column="17"/>
+<terminal token="CHAR_CONST" lexeme="&#39;\&#39;" line="6" column="21"/>
+<terminal token="CHAR_CONST" lexeme="&#39;]&#39;" line="7" column="1"/>
+<terminal token="CHAR_CONST" lexeme="&#39;^&#39;" line="7" column="5"/>
+<terminal token="CHAR_CONST" lexeme="&#39;_&#39;" line="7" column="9"/>
+<terminal token="CHAR_CONST" lexeme="&#39;`&#39;" line="7" column="13"/>
+<terminal token="CHAR_CONST" lexeme="&#39;{&#39;" line="7" column="17"/>
+<terminal token="CHAR_CONST" lexeme="&#39;|&#39;" line="7" column="21"/>
+<terminal token="CHAR_CONST" lexeme="&#39;}&#39;" line="8" column="1"/>
+<terminal token="CHAR_CONST" lexeme="&#39;~&#39;" line="8" column="5"/>
+<terminal token="CHAR_CONST" lexeme="&#39;&#39;&#39;&#39;" line="8" column="9"/>
+<terminal token="CHAR_CONST" lexeme="&#39;a&#39;" line="8" column="14"/>
+<terminal token="CHAR_CONST" lexeme="&#39;b&#39;" line="8" column="18"/>
+<terminal token="CHAR_CONST" lexeme="&#39;c&#39;" line="8" column="22"/>
+<terminal token="CHAR_CONST" lexeme="&#39;D&#39;" line="9" column="1"/>
+<terminal token="CHAR_CONST" lexeme="&#39;E&#39;" line="9" column="5"/>
+<terminal token="BOOL_CONST" lexeme="true" line="11" column="1"/>
+<terminal token="BOOL_CONST" lexeme="false" line="12" column="1"/>
+<terminal token="INT_CONST" lexeme="7" line="13" column="1"/>
+<terminal token="BOOL_CONST" lexeme="false" line="13" column="2"/>
+<terminal token="SUB" line="14" column="1"/>
+<terminal token="BOOL_CONST" lexeme="true" line="14" column="2"/>
+<terminal token="INT_CONST" lexeme="2718281828459045" line="16" column="1"/>
+<terminal token="SUB" line="17" column="1"/>
+<terminal token="INT_CONST" lexeme="42" line="17" column="2"/>
+</lexanal>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<lexanal>
+<terminal token="IDENTIFIER" lexeme="a" line="1" column="2"/>
+<terminal token="CHAR_CONST" lexeme="&#39;b&#39;" line="2" column="1"/>
+<terminal token="CHAR_CONST" lexeme="&#39;c&#39;" line="2" column="4"/>
+</lexanal>
