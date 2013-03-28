@@ -27,7 +27,7 @@ terminal ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SU
 terminal ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE;
 
 non terminal source, main_block;
-non terminal expr, val_expr, type_expr, stmt, stmt_opt;
+non terminal val_expr, type_expr, stmt, stmt_opt;
 non terminal if_stmt, while_stmt, for_stmt;
 non terminal const_declarations_opt, type_declarations_opt, var_declarations_opt, subroutine_declarations_opt;
 non terminal declarations, const_declarations, type_declarations, var_declarations, subroutine_declarations;
@@ -168,28 +168,25 @@ parameter ::=
 main_block ::=
             BEGIN stmt_opt END DOT;
 
-expr ::= 
-            stmt
-        |   BEGIN stmt_opt END;
-
 stmt ::=
-            val_expr
+            BEGIN stmt_opt END
+        |   val_expr
         |   val_expr ASSIGN val_expr
         |   if_stmt
         |   while_stmt
         |   for_stmt;
 
 stmt_opt ::=
-            stmt_opt SEMIC stmt
+            stmt SEMIC stmt_opt
         |   stmt
         |   ;
 
 if_stmt ::=
-            IF val_expr THEN expr
-        |   IF val_expr THEN expr ELSE expr;
+            IF val_expr THEN stmt
+        |   IF val_expr THEN stmt ELSE stmt;
 
 while_stmt ::=
-            WHILE val_expr DO expr;
+            WHILE val_expr DO stmt;
 
 for_stmt ::=
-            FOR IDENTIFIER ASSIGN val_expr TO val_expr DO expr;
+            FOR IDENTIFIER ASSIGN val_expr TO val_expr DO stmt;
