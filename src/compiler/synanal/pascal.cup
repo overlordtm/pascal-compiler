@@ -26,10 +26,170 @@ terminal COLON, COMMA, DOT, DOTS, LBRACKET, LPARENTHESIS, RBRACKET, RPARENTHESIS
 terminal ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL;
 terminal ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE;
 
-non terminal	source;
+non terminal source, main_block;
+non terminal expr, val_expr, type_expr, stmt, stmt_opt;
+non terminal if_stmt, while_stmt, for_stmt;
+non terminal const_declarations_opt, type_declarations_opt, var_declarations_opt, subroutine_declarations_opt;
+non terminal declarations, const_declarations, type_declarations, var_declarations, subroutine_declarations;
+non terminal const_declaration, type_declaration, var_declaration;
+non terminal function_declaration, procedure_declaration;
+non terminal arguments_list;
+non terminal components_list, component;
+non terminal parameters, parameter;
+
+precedence left AND;
+precedence left OR;
+precedence left EQU, NEQ;
+precedence left GTH, LTH, GEQ, LEQ;
+precedence left ADD, SUB;
+precedence left MUL, DIV;
+precedence left PTR;
+precedence nonassoc NOT;
+precedence left DOT, LBRACKET, RBRACKET;
 
 start with source;
 
-source
-    ;
+source ::= PROGRAM IDENTIFIER SEMIC declarations main_block;
 
+val_expr ::=
+            BOOL_CONST
+        |   CHAR_CONST
+        |   INT_CONST
+        |   NIL
+        |   PTR val_expr
+        |   ADD val_expr
+        |   SUB val_expr
+        |   NOT val_expr
+        |   val_expr PTR
+        |   val_expr MUL val_expr
+        |   val_expr DIV val_expr
+        |   val_expr ADD val_expr
+        |   val_expr SUB val_expr
+        |   val_expr EQU val_expr
+        |   val_expr NEQ val_expr
+        |   val_expr GTH val_expr
+        |   val_expr LTH val_expr
+        |   val_expr GEQ val_expr
+        |   val_expr LEQ val_expr
+        |   val_expr AND val_expr
+        |   val_expr OR val_expr
+        |   IDENTIFIER
+        |   val_expr LBRACKET val_expr RBRACKET
+        |   val_expr DOT IDENTIFIER
+        |   IDENTIFIER LPARENTHESIS arguments_list RPARENTHESIS
+        |   LBRACKET type_expr RBRACKET
+        |   LPARENTHESIS val_expr RPARENTHESIS;
+
+type_expr ::=
+            BOOL
+        |   CHAR
+        |   INT
+        |   IDENTIFIER
+        |   ARRAY LBRACKET val_expr DOTS val_expr RBRACKET OF type_expr
+        |   RECORD components_list END
+        |   PTR type_expr
+        |   LPARENTHESIS type_expr RPARENTHESIS;
+
+components_list ::=
+            components_list SEMIC component
+        |   component;
+
+component ::=
+            IDENTIFIER COLON type_expr;
+
+arguments_list ::=
+            val_expr COMMA arguments_list
+        |   val_expr
+        |   ;
+
+declarations ::=
+        const_declarations_opt
+        type_declarations_opt
+        var_declarations_opt
+        subroutine_declarations_opt;
+
+const_declarations_opt ::=
+            CONST const_declarations
+        |   ;
+
+const_declarations ::=
+            const_declarations const_declaration
+        |   const_declaration;
+
+const_declaration ::=
+            IDENTIFIER EQU val_expr SEMIC;
+
+type_declarations_opt ::=
+            TYPE type_declarations
+        |   ;
+
+type_declarations ::=
+            type_declarations type_declaration
+        |   type_declaration;
+
+type_declaration ::=
+            IDENTIFIER EQU type_expr SEMIC;
+
+var_declarations_opt ::=
+            VAR var_declarations
+        |   ;
+
+var_declarations ::=
+            var_declarations var_declaration
+        |   var_declaration;
+
+var_declaration ::=
+            IDENTIFIER COLON type_expr SEMIC;
+
+subroutine_declarations_opt ::=
+            subroutine_declarations
+        |   ;
+
+subroutine_declarations ::=
+            subroutine_declarations function_declaration
+        |   subroutine_declarations procedure_declaration
+        |   function_declaration
+        |   procedure_declaration;
+
+procedure_declaration ::=
+            PROCEDURE IDENTIFIER LPARENTHESIS parameters RPARENTHESIS SEMIC declarations BEGIN stmt_opt END SEMIC;
+
+function_declaration ::=
+            FUNCTION IDENTIFIER LPARENTHESIS parameters RPARENTHESIS COLON type_expr SEMIC declarations BEGIN stmt_opt END SEMIC;
+
+parameters ::=
+            parameters SEMIC parameter
+        |   parameter
+        |   ;
+
+parameter ::=
+            IDENTIFIER COLON type_expr;
+
+main_block ::=
+            BEGIN stmt_opt END DOT;
+
+expr ::= 
+            stmt
+        |   BEGIN stmt_opt END;
+
+stmt ::=
+            val_expr
+        |   val_expr ASSIGN val_expr
+        |   if_stmt
+        |   while_stmt
+        |   for_stmt;
+
+stmt_opt ::=
+            stmt_opt SEMIC stmt
+        |   stmt
+        |   ;
+
+if_stmt ::=
+            IF val_expr THEN expr
+        |   IF val_expr THEN expr ELSE expr;
+
+while_stmt ::=
+            WHILE val_expr DO expr;
+
+for_stmt ::=
+            FOR IDENTIFIER ASSIGN val_expr TO val_expr DO expr;
