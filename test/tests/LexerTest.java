@@ -72,12 +72,12 @@ public class LexerTest {
 
 	@BeforeClass
 	public static void testSetup() {
-		System.setOut(new PrintStream(tmpOut));
+		System.setErr(new PrintStream(tmpOut));
 	}
 
 	@AfterClass
 	public static void testCleanup() {
-		System.setOut(System.out);
+		System.setErr(System.err);
 	}
 
 	@Before
