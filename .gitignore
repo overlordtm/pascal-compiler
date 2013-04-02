@@ -13,4 +13,5 @@ PascalTok.java
 *.ear
 lexanal.xml
 synanal.xml
+abstree.xml
 pascal.pdf
