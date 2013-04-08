@@ -52,9 +52,10 @@ non terminal AbsFunDecl function_declaration;
 non terminal AbsProcDecl procedure_declaration;
 non terminal AbsValExprs arguments_list;
 non terminal AbsDecls components_list;
-non terminal AbsVarDecl component;
+non terminal AbsTypeDecl component;
 non terminal AbsDecls parameters;
 non terminal AbsVarDecl parameter;
+non terminal AbsTree eps;
 
 precedence left AND;
 precedence left OR;
@@ -67,6 +68,8 @@ precedence nonassoc NOT;
 precedence left DOT, LBRACKET, RBRACKET;
 
 start with source;
+
+eps ::= ;
 
 source ::= PROGRAM:prog IDENTIFIER:name SEMIC:s declarations:decls main_block:body
             {:
@@ -82,13 +85,39 @@ source ::= PROGRAM:prog IDENTIFIER:name SEMIC:s declarations:decls main_block:bo
         ;
 
 val_expr ::=
-            BOOL_CONST:c {: RESULT = new AbsAtomConst(c, AbsAtomConst.BOOL); :}
-        |   CHAR_CONST:c {: RESULT = new AbsAtomConst(c, AbsAtomConst.CHAR); :}
-        |   INT_CONST:c {: RESULT = new AbsAtomConst(c, AbsAtomConst.INT); :}
-        |   NIL {: RESULT = new AbsNilConst(); :}
+            BOOL_CONST:c
+            {:
+                AbsAtomConst aac = new AbsAtomConst(c, AbsAtomConst.BOOL);
+                aac.setPos(c, cleft, cright);
+                RESULT = aac;
+            :}
+        |   CHAR_CONST:c
+            {:
+                AbsAtomConst aac = new AbsAtomConst(c, AbsAtomConst.CHAR);
+                aac.setPos(c, cleft, cright);
+                RESULT = aac;
+            :}
+        |   INT_CONST:c
+            {:
+                AbsAtomConst aac = new AbsAtomConst(c, AbsAtomConst.INT);
+                aac.setPos(c, cleft, cright);
+                RESULT = aac;
+            :}
+        |   NIL:n
+            {:
+                AbsNilConst anc = new AbsNilConst();
+                anc.setPos(n, nleft, nright);
+                RESULT = anc;
+            :}
         |   PTR val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.MEM, v); :}
         |   ADD val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.ADD, v); :}
-        |   SUB val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.SUB, v); :}
+        |   SUB:s val_expr:v
+            {:
+                AbsUnExpr aue = new AbsUnExpr(AbsUnExpr.SUB, v);
+                aue.setBeg(s, sleft, sright);
+                aue.setEnd(v); 
+                RESULT = aue;
+            :}
         |   NOT val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.NOT, v); :}
         |   val_expr:v PTR {: RESULT = new AbsUnExpr(AbsUnExpr.VAL, v); :}
         |   val_expr:v1 MUL val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.MUL, v1, v2); :}
@@ -137,16 +166,49 @@ type_expr ::=
         ;
 
 components_list ::=
-            components_list SEMIC component
-        |   component;
+            components_list:ad SEMIC component:c
+            {:
+                ad.decls.add(c);
+                ad.setEnd(c);
+                RESULT = ad;
+            :}
+        |   component:c
+            {:
+                AbsDecls ad = new AbsDecls();
+                ad.decls.add(c);
+                ad.setBeg(c);
+                ad.setEnd(c);
+                RESULT = ad;
+            :};
 
 component ::=
-            IDENTIFIER COLON type_expr;
+            IDENTIFIER:n COLON type_expr:type
+            {:
+                AbsDeclName adn = new AbsDeclName(n);
+                adn.setPos(n, nleft, nright);
+
+                AbsTypeDecl atd = new AbsTypeDecl(adn, type);
+                atd.setBeg(adn);
+                atd.setEnd(type);
+                RESULT = atd;
+            :};
 
 arguments_list ::=
-            val_expr COMMA arguments_list
-        |   val_expr
-        |   ;
+            val_expr:e COMMA arguments_list:aves
+            {:
+                aves.exprs.add(e);
+                RESULT = aves;
+            :}
+        |   val_expr:e
+            {:
+                AbsValExprs aves = new AbsValExprs();
+                aves.exprs.add(e);
+                RESULT = aves;
+            :}
+        |   {:
+                AbsValExprs aves = new AbsValExprs();
+                RESULT = aves;
+            :};
 
 declarations ::=
         const_declarations_opt:consts
@@ -184,9 +246,14 @@ const_declarations ::=
         ;
 
 const_declaration ::=
-            IDENTIFIER:name EQU val_expr:v SEMIC
+            IDENTIFIER:name EQU val_expr:v SEMIC:s
             {:
-                AbsConstDecl d = new AbsConstDecl(new AbsDeclName(name), v);
+                AbsDeclName adn = new AbsDeclName(name);
+                adn.setPos(name, nameleft, nameright);
+                
+                AbsConstDecl d = new AbsConstDecl(adn, v);
+                d.setBeg(name, nameleft, nameright);
+                d.setEnd(s, sleft, sright);
                 RESULT = d;
             :};
 
@@ -232,9 +299,12 @@ var_declarations ::=
             :};
 
 var_declaration ::=
-            IDENTIFIER:name COLON type_expr:type SEMIC
+            IDENTIFIER:name COLON type_expr:type SEMIC:s
             {:
-                RESULT = new AbsVarDecl(new AbsDeclName(name), type);
+                AbsVarDecl avd = new AbsVarDecl(new AbsDeclName(name), type);
+                avd.setBeg(name, nameleft, nameright);
+                avd.setEnd(s, sleft, sright);
+                RESULT = avd;
             :};
 
 subroutine_declarations_opt ::=
@@ -297,23 +367,34 @@ parameter ::=
             IDENTIFIER:name COLON type_expr:type {: RESULT = new AbsVarDecl(new AbsDeclName(name), type); :};
 
 main_block ::=
-            BEGIN stmt_opt:stmt END DOT
+            BEGIN:b stmt_opt:stmt END DOT:d
             {:
-                RESULT = new AbsBlockStmt(stmt);
+                AbsBlockStmt abs = new AbsBlockStmt(stmt);
+                abs.setBeg(b, bleft, bright);
+                abs.setEnd(d, dleft, dright);
+                RESULT = abs;
             :};
 
 stmt ::=
-            BEGIN stmt_opt:stmt END
+            BEGIN:b stmt_opt:stmt END:e
             {:
-                RESULT = new AbsBlockStmt(stmt);
+                AbsBlockStmt abs = new AbsBlockStmt(stmt);
+                abs.setBeg(b, bleft, bright);
+                abs.setEnd(e, eleft, eright);
+                RESULT = abs;
             :}
         |   val_expr:expr 
             {:
-                RESULT = new AbsExprStmt(expr);
+                AbsExprStmt aes = new AbsExprStmt(expr);
+                aes.setPos(expr);
+                RESULT = aes;
             :}
         |   val_expr:lvalue ASSIGN val_expr:rvalue
             {:
-                RESULT = new AbsAssignStmt(lvalue, rvalue);
+                AbsAssignStmt aas = new AbsAssignStmt(lvalue, rvalue);
+                aas.setBeg(lvalue);
+                aas.setEnd(rvalue);
+                RESULT = aas;
             :}
         |   if_stmt:s {: RESULT = s; :}
         |   while_stmt:s {: RESULT = s; :}
@@ -323,24 +404,42 @@ stmt_opt ::=
             stmt:s SEMIC stmt_opt:ss
             {:
                 ss.stmts.add(s);
+                ss.setBeg(s);
                 RESULT = ss;
             :}
         |   stmt:s
             {:
                 AbsStmts as = new AbsStmts();
                 as.stmts.add(s);
+                as.setPos(s);
                 RESULT = as;
             :}
-        |   {: RESULT = new AbsStmts(); :};
+        |   error SEMIC stmt_opt:stmts
+            {:
+                RESULT = stmts;
+                RESULT.error = true;
+            :}
+        |   eps:e 
+            {: 
+                AbsStmts as = new AbsStmts();
+                as.setPos("", eleft, eright);
+                RESULT = as;
+            :};
 
 if_stmt ::=
-            IF val_expr:cond THEN stmt:then
+            IF:i val_expr:cond THEN stmt:then
             {:
-                RESULT = new AbsIfStmt(cond, then, new AbsBlockStmt(new AbsStmts()));
+                AbsIfStmt ais = new AbsIfStmt(cond, then, new AbsBlockStmt(new AbsStmts()));
+                ais.setBeg(i, ileft, iright);
+                ais.setEnd(then);
+                RESULT = ais;
             :}
-        |   IF val_expr:cond THEN stmt:then ELSE stmt:els
+        |   IF:i val_expr:cond THEN stmt:then ELSE stmt:els
             {:
-                RESULT = new AbsIfStmt(cond, then, els);
+                AbsIfStmt ais = new AbsIfStmt(cond, then, els);
+                ais.setBeg(i, ileft, iright);
+                ais.setEnd(els);
+                RESULT = ais;
             :};
 
 while_stmt ::=

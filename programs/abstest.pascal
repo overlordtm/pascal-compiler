@@ -1,4 +1,9 @@
-program test;
+program abstest;
+var zoki: integer;
 begin
-	1-2-3
+    begin
+      -7+6*3 lol 7;
+    end;
+    10 div 8;
+    10 + 10;
 end.
