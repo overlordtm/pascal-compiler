@@ -3,6 +3,7 @@ package compiler.synanal;
 import java_cup.runtime.*;
 
 import compiler.report.*;
+import compiler.abstree.tree.*;
 
 parser code
 {:
@@ -21,21 +22,39 @@ parser code
 terminal String BOOL_CONST, CHAR_CONST, INT_CONST, NIL;
 terminal String IDENTIFIER;
 
-terminal BOOL, CHAR, INT;
-terminal COLON, COMMA, DOT, DOTS, LBRACKET, LPARENTHESIS, RBRACKET, RPARENTHESIS, SEMIC;
-terminal ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL;
-terminal ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE;
+terminal String BOOL, CHAR, INT;
+terminal String COLON, COMMA, DOT, DOTS, LBRACKET, LPARENTHESIS, RBRACKET, RPARENTHESIS, SEMIC;
+terminal String ADD, AND, DIV, EQU, GEQ, GTH, LEQ, LTH, MEM, MUL, NEQ, NOT, OR, PTR, SUB, UADD, USUB, VAL;
+terminal String ARRAY, ASSIGN, BEGIN, CONST, DO, ELSE, END, FOR, FUNCTION, IF, OF, PROCEDURE, PROGRAM, RECORD, THEN, TO, TYPE, VAR, WHILE;
 
-non terminal source, main_block;
-non terminal val_expr, type_expr, stmt, stmt_opt;
-non terminal if_stmt, while_stmt, for_stmt;
-non terminal const_declarations_opt, type_declarations_opt, var_declarations_opt, subroutine_declarations_opt;
-non terminal declarations, const_declarations, type_declarations, var_declarations, subroutine_declarations;
-non terminal const_declaration, type_declaration, var_declaration;
-non terminal function_declaration, procedure_declaration;
-non terminal arguments_list;
-non terminal components_list, component;
-non terminal parameters, parameter;
+non terminal AbsProgram source;
+non terminal AbsBlockStmt main_block;
+non terminal AbsValExpr val_expr;
+non terminal AbsTypeExpr type_expr;
+non terminal AbsStmt stmt;
+non terminal AbsStmts stmt_opt;
+non terminal AbsIfStmt if_stmt;
+non terminal AbsWhileStmt while_stmt;
+non terminal AbsForStmt for_stmt;
+non terminal AbsDecls const_declarations_opt;
+non terminal AbsDecls type_declarations_opt;
+non terminal AbsDecls var_declarations_opt;
+non terminal AbsDecls subroutine_declarations_opt;
+non terminal AbsDecls declarations;
+non terminal AbsDecls const_declarations;
+non terminal AbsDecls type_declarations;
+non terminal AbsDecls var_declarations;
+non terminal AbsDecls subroutine_declarations;
+non terminal AbsConstDecl const_declaration;
+non terminal AbsTypeDecl type_declaration;
+non terminal AbsVarDecl var_declaration;
+non terminal AbsFunDecl function_declaration;
+non terminal AbsProcDecl procedure_declaration;
+non terminal AbsValExprs arguments_list;
+non terminal AbsDecls components_list;
+non terminal AbsVarDecl component;
+non terminal AbsDecls parameters;
+non terminal AbsVarDecl parameter;
 
 precedence left AND;
 precedence left OR;
@@ -49,46 +68,73 @@ precedence left DOT, LBRACKET, RBRACKET;
 
 start with source;
 
-source ::= PROGRAM IDENTIFIER SEMIC declarations main_block;
+source ::= PROGRAM:prog IDENTIFIER:name SEMIC:s declarations:decls main_block:body
+            {:
+                AbsDeclName pname = new AbsDeclName(name);
+                pname.setBeg(prog, progleft, progright);
+                pname.setEnd(s, sleft, sright);
+
+                AbsProgram p = new AbsProgram(pname, decls, body);
+                p.setBeg(pname);
+                p.setEnd(body);
+                RESULT = p;
+            :}
+        ;
 
 val_expr ::=
-            BOOL_CONST
-        |   CHAR_CONST
-        |   INT_CONST
-        |   NIL
-        |   PTR val_expr
-        |   ADD val_expr
-        |   SUB val_expr
-        |   NOT val_expr
-        |   val_expr PTR
-        |   val_expr MUL val_expr
-        |   val_expr DIV val_expr
-        |   val_expr ADD val_expr
-        |   val_expr SUB val_expr
-        |   val_expr EQU val_expr
-        |   val_expr NEQ val_expr
-        |   val_expr GTH val_expr
-        |   val_expr LTH val_expr
-        |   val_expr GEQ val_expr
-        |   val_expr LEQ val_expr
-        |   val_expr AND val_expr
-        |   val_expr OR val_expr
-        |   IDENTIFIER
-        |   val_expr LBRACKET val_expr RBRACKET
-        |   val_expr DOT IDENTIFIER
-        |   IDENTIFIER LPARENTHESIS arguments_list RPARENTHESIS
-        |   LBRACKET type_expr RBRACKET
-        |   LPARENTHESIS val_expr RPARENTHESIS;
-
+            BOOL_CONST:c {: RESULT = new AbsAtomConst(c, AbsAtomConst.BOOL); :}
+        |   CHAR_CONST:c {: RESULT = new AbsAtomConst(c, AbsAtomConst.CHAR); :}
+        |   INT_CONST:c {: RESULT = new AbsAtomConst(c, AbsAtomConst.INT); :}
+        |   NIL {: RESULT = new AbsNilConst(); :}
+        |   PTR val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.MEM, v); :}
+        |   ADD val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.ADD, v); :}
+        |   SUB val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.SUB, v); :}
+        |   NOT val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.NOT, v); :}
+        |   val_expr:v PTR {: RESULT = new AbsUnExpr(AbsUnExpr.VAL, v); :}
+        |   val_expr:v1 MUL val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.MUL, v1, v2); :}
+        |   val_expr:v1 DIV val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.DIV, v1, v2); :}
+        |   val_expr:v1 ADD val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.ADD, v1, v2); :}
+        |   val_expr:v1 SUB val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.SUB, v1, v2); :}
+        |   val_expr:v1 EQU val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.EQU, v1, v2); :}
+        |   val_expr:v1 NEQ val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.NEQ, v1, v2); :}
+        |   val_expr:v1 GTH val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.GTH, v1, v2); :}
+        |   val_expr:v1 LTH val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.LTH, v1, v2); :}
+        |   val_expr:v1 GEQ val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.GEQ, v1, v2); :}
+        |   val_expr:v1 LEQ val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.LEQ, v1, v2); :}
+        |   val_expr:v1 AND val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.AND, v1, v2); :}
+        |   val_expr:v1 OR val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.OR, v1, v2); :}
+        |   val_expr:v1 LBRACKET val_expr:v2 RBRACKET {: RESULT = new AbsBinExpr(AbsBinExpr.ARRACCESS, v1, v2); :}
+        |   val_expr:v1 DOT IDENTIFIER:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.RECACCESS, v1, new AbsValName(v2)); :}
+        |   IDENTIFIER:name LPARENTHESIS arguments_list:args RPARENTHESIS {: RESULT = new AbsCallExpr(new AbsValName(name), args); :}
+        |   LBRACKET type_expr:t RBRACKET {: RESULT = new AbsAlloc(t); :}
+        |   LPARENTHESIS val_expr:v RPARENTHESIS {: RESULT = v; :}
+        |   IDENTIFIER:id  {: RESULT = new AbsValName(id); :};
+        
 type_expr ::=
-            BOOL
-        |   CHAR
-        |   INT
-        |   IDENTIFIER
-        |   ARRAY LBRACKET val_expr DOTS val_expr RBRACKET OF type_expr
-        |   RECORD components_list END
-        |   PTR type_expr
-        |   LPARENTHESIS type_expr RPARENTHESIS;
+            BOOL:t {: RESULT = new AbsAtomType(AbsAtomType.BOOL); :}
+        |   CHAR:t {: RESULT = new AbsAtomType(AbsAtomType.CHAR); :}
+        |   INT:t {: RESULT = new AbsAtomType(AbsAtomType.INT); :}
+        |   IDENTIFIER:t {: RESULT = new AbsTypeName(t); :}
+        |   ARRAY:arr LBRACKET val_expr:v1 DOTS val_expr:v2 RBRACKET OF type_expr:t
+            {:
+                AbsArrayType aat = new AbsArrayType(t, v1, v2);
+                RESULT = aat;
+            :}
+        |   RECORD:r components_list:vars END:e
+            {:
+                AbsRecordType art = new AbsRecordType(vars);
+                RESULT = art;
+            :}
+        |   PTR type_expr:t
+            {:
+                AbsPointerType apt = new AbsPointerType(t);
+                RESULT = apt;
+            :}
+        |   LPARENTHESIS type_expr:t RPARENTHESIS
+            {:
+                RESULT = t;
+            :}
+        ;
 
 components_list ::=
             components_list SEMIC component
@@ -103,90 +149,208 @@ arguments_list ::=
         |   ;
 
 declarations ::=
-        const_declarations_opt
-        type_declarations_opt
-        var_declarations_opt
-        subroutine_declarations_opt;
+        const_declarations_opt:consts
+        type_declarations_opt:types
+        var_declarations_opt:vars
+        subroutine_declarations_opt:subs
+        {:
+            AbsDecls decls = new AbsDecls();
+            decls.decls.addAll(consts.decls);
+            decls.decls.addAll(types.decls);
+            decls.decls.addAll(vars.decls);
+            decls.decls.addAll(subs.decls);
+            decls.setBeg(consts);
+            decls.setEnd(subs);
+            RESULT = decls;
+        :}
+        ;
 
 const_declarations_opt ::=
-            CONST const_declarations
-        |   ;
+            CONST const_declarations:d {: RESULT = d; :}
+        |   {: RESULT = new AbsDecls(); :};
 
 const_declarations ::=
-            const_declarations const_declaration
-        |   const_declaration;
+            const_declarations:ds const_declaration:d
+            {:
+                ds.decls.add(d);
+                RESULT = ds;
+            :}
+        |   const_declaration:d
+            {:
+                AbsDecls ds = new AbsDecls();
+                ds.decls.add(d);
+                RESULT = ds;
+            :}
+        ;
 
 const_declaration ::=
-            IDENTIFIER EQU val_expr SEMIC;
+            IDENTIFIER:name EQU val_expr:v SEMIC
+            {:
+                AbsConstDecl d = new AbsConstDecl(new AbsDeclName(name), v);
+                RESULT = d;
+            :};
 
 type_declarations_opt ::=
-            TYPE type_declarations
-        |   ;
+            TYPE type_declarations:t {: RESULT = t; :}
+        |   {: RESULT = new AbsDecls(); :};
 
 type_declarations ::=
-            type_declarations type_declaration
-        |   type_declaration;
+            type_declarations:ds type_declaration:d
+            {:
+                ds.decls.add(d);
+                RESULT = ds;
+            :}
+        |   type_declaration:d
+            {:
+                AbsDecls ds = new AbsDecls();
+                ds.decls.add(d);
+                RESULT = ds;
+            :};
 
 type_declaration ::=
-            IDENTIFIER EQU type_expr SEMIC;
+            IDENTIFIER:name EQU type_expr:type SEMIC
+            {:
+                AbsTypeDecl atd = new AbsTypeDecl(new AbsDeclName(name), type);
+                RESULT = atd;
+            :};
 
 var_declarations_opt ::=
-            VAR var_declarations
-        |   ;
+            VAR var_declarations:vars {: RESULT = vars; :}
+        |   {: RESULT = new AbsDecls(); :};
 
 var_declarations ::=
-            var_declarations var_declaration
-        |   var_declaration;
+            var_declarations:ds var_declaration:d
+            {:
+                ds.decls.add(d);
+                RESULT = ds;
+            :}
+        |   var_declaration:d
+            {:
+                AbsDecls ds = new AbsDecls();
+                ds.decls.add(d);
+                RESULT = ds;
+            :};
 
 var_declaration ::=
-            IDENTIFIER COLON type_expr SEMIC;
+            IDENTIFIER:name COLON type_expr:type SEMIC
+            {:
+                RESULT = new AbsVarDecl(new AbsDeclName(name), type);
+            :};
 
 subroutine_declarations_opt ::=
-            subroutine_declarations
-        |   ;
+            subroutine_declarations:decls {: RESULT = decls; :}
+        |   {: RESULT = new AbsDecls(); :};
 
 subroutine_declarations ::=
-            subroutine_declarations function_declaration
-        |   subroutine_declarations procedure_declaration
-        |   function_declaration
-        |   procedure_declaration;
+            subroutine_declarations:ds function_declaration:d
+            {:
+                ds.decls.add(d);
+                RESULT = ds;
+            :}
+        |   subroutine_declarations:ds procedure_declaration:d
+            {:
+                ds.decls.add(d);
+                RESULT = ds;
+            :}
+        |   function_declaration:d
+            {:
+                AbsDecls ds = new AbsDecls();
+                ds.decls.add(d);
+                RESULT = ds;
+            :}
+        |   procedure_declaration:d
+            {:
+                AbsDecls ds = new AbsDecls();
+                ds.decls.add(d);
+                RESULT = ds;
+            :};
 
 procedure_declaration ::=
-            PROCEDURE IDENTIFIER LPARENTHESIS parameters RPARENTHESIS SEMIC declarations BEGIN stmt_opt END SEMIC;
+            PROCEDURE IDENTIFIER:name LPARENTHESIS parameters:pars RPARENTHESIS SEMIC declarations:decls BEGIN stmt_opt:stmt END SEMIC
+            {:
+                AbsBlockStmt abs = new AbsBlockStmt(stmt);
+                RESULT = new AbsProcDecl(new AbsDeclName(name), pars, decls, abs);
+            :};
 
 function_declaration ::=
-            FUNCTION IDENTIFIER LPARENTHESIS parameters RPARENTHESIS COLON type_expr SEMIC declarations BEGIN stmt_opt END SEMIC;
+            FUNCTION IDENTIFIER:name LPARENTHESIS parameters:pars RPARENTHESIS COLON type_expr:type SEMIC declarations:decls BEGIN stmt_opt:stmt END SEMIC
+            {:
+                AbsBlockStmt abs = new AbsBlockStmt(stmt);
+                RESULT = new AbsFunDecl(new AbsDeclName(name), pars, type, decls, abs);
+            :};
 
 parameters ::=
-            parameters SEMIC parameter
-        |   parameter
-        |   ;
+            parameters:ps SEMIC parameter:p
+            {:
+                ps.decls.add(p);
+                RESULT = ps;
+            :}
+        |   parameter:p
+            {:
+                AbsDecls ps = new AbsDecls();
+                ps.decls.add(p);
+                RESULT = ps;
+            :}
+        |   {: RESULT = new AbsDecls(); :};
 
 parameter ::=
-            IDENTIFIER COLON type_expr;
+            IDENTIFIER:name COLON type_expr:type {: RESULT = new AbsVarDecl(new AbsDeclName(name), type); :};
 
 main_block ::=
-            BEGIN stmt_opt END DOT;
+            BEGIN stmt_opt:stmt END DOT
+            {:
+                RESULT = new AbsBlockStmt(stmt);
+            :};
 
 stmt ::=
-            BEGIN stmt_opt END
-        |   val_expr
-        |   val_expr ASSIGN val_expr
-        |   if_stmt
-        |   while_stmt
-        |   for_stmt;
+            BEGIN stmt_opt:stmt END
+            {:
+                RESULT = new AbsBlockStmt(stmt);
+            :}
+        |   val_expr:expr 
+            {:
+                RESULT = new AbsExprStmt(expr);
+            :}
+        |   val_expr:lvalue ASSIGN val_expr:rvalue
+            {:
+                RESULT = new AbsAssignStmt(lvalue, rvalue);
+            :}
+        |   if_stmt:s {: RESULT = s; :}
+        |   while_stmt:s {: RESULT = s; :}
+        |   for_stmt:s {: RESULT = s; :};
 
 stmt_opt ::=
-            stmt SEMIC stmt_opt
-        |   stmt
-        |   ;
+            stmt:s SEMIC stmt_opt:ss
+            {:
+                ss.stmts.add(s);
+                RESULT = ss;
+            :}
+        |   stmt:s
+            {:
+                AbsStmts as = new AbsStmts();
+                as.stmts.add(s);
+                RESULT = as;
+            :}
+        |   {: RESULT = new AbsStmts(); :};
 
 if_stmt ::=
-            IF val_expr THEN stmt
-        |   IF val_expr THEN stmt ELSE stmt;
+            IF val_expr:cond THEN stmt:then
+            {:
+                RESULT = new AbsIfStmt(cond, then, new AbsBlockStmt(new AbsStmts()));
+            :}
+        |   IF val_expr:cond THEN stmt:then ELSE stmt:els
+            {:
+                RESULT = new AbsIfStmt(cond, then, els);
+            :};
 
 while_stmt ::=
-            WHILE val_expr DO stmt;
+            WHILE val_expr:cond DO stmt:stmt
+            {:
+                RESULT = new AbsWhileStmt(cond, stmt);
+            :};
 
 for_stmt ::=
-            FOR IDENTIFIER ASSIGN val_expr TO val_expr DO stmt;
+            FOR IDENTIFIER:name ASSIGN val_expr:v1 TO val_expr:v2 DO stmt:stmt
+            {:
+                RESULT = new AbsForStmt(new AbsValName(name), v1, v2, stmt);
+            :};
