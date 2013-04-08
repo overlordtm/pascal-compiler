@@ -56,11 +56,11 @@ val_expr ::=
         |   CHAR_CONST
         |   INT_CONST
         |   NIL
-        |   MEM val_expr
-        |   UADD val_expr
-        |   USUB val_expr
+        |   PTR val_expr
+        |   ADD val_expr
+        |   SUB val_expr
         |   NOT val_expr
-        |   val_expr VAL
+        |   val_expr PTR
         |   val_expr MUL val_expr
         |   val_expr DIV val_expr
         |   val_expr ADD val_expr
