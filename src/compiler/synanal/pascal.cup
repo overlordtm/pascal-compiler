@@ -504,11 +504,13 @@ subroutine_declarations ::=
             subroutine_declarations:ds function_declaration:d
             {:
                 ds.decls.add(d);
+                ds.setEnd(d);
                 RESULT = ds;
             :}
         |   subroutine_declarations:ds procedure_declaration:d
             {:
                 ds.decls.add(d);
+                ds.setEnd(d);
                 RESULT = ds;
             :}
         |   function_declaration:d
