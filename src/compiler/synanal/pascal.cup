@@ -248,7 +248,8 @@ val_expr ::=
                 avn.setPos(name, nameleft, nameright);
 
                 AbsCallExpr ace = new AbsCallExpr(avn, args);
-                ace.setPos(args);
+                ace.setBeg(avn);
+                ace.setEnd(args);
                 RESULT = ace;
             :}
         |   LBRACKET:lb type_expr:t RBRACKET:rb
@@ -542,10 +543,19 @@ procedure_declaration ::=
             :};
 
 function_declaration ::=
-            FUNCTION IDENTIFIER:name LPARENTHESIS parameters:pars RPARENTHESIS COLON type_expr:type SEMIC declarations:decls BEGIN stmt_opt:stmt END SEMIC
+            FUNCTION:f IDENTIFIER:name LPARENTHESIS parameters:pars RPARENTHESIS COLON type_expr:type SEMIC declarations:decls BEGIN:b stmt_opt:stmt END:e SEMIC
             {:
+                AbsDeclName adn = new AbsDeclName(name);
+                adn.setPos(name, nameleft, nameright);
+
                 AbsBlockStmt abs = new AbsBlockStmt(stmt);
-                RESULT = new AbsFunDecl(new AbsDeclName(name), pars, type, decls, abs);
+                abs.setBeg(b, bleft, bright);
+                abs.setEnd(e, eleft, eright);
+
+                AbsFunDecl afd = new AbsFunDecl(adn, pars, type, decls, abs);
+                afd.setBeg(f, fleft, fright);
+                afd.setEnd(e, eleft, eright);
+                RESULT = afd;
             :};
 
 parameters ::=
@@ -644,7 +654,12 @@ stmt_opt ::=
 if_stmt ::=
             IF:i val_expr:cond THEN stmt:then
             {:
-                AbsIfStmt ais = new AbsIfStmt(cond, then, new AbsBlockStmt(new AbsStmts()));
+                AbsStmts ass = new AbsStmts();
+                ass.setPos("", then.endLine, then.endColumn);
+                AbsBlockStmt abs = new AbsBlockStmt(ass);
+                abs.setPos(ass);
+
+                AbsIfStmt ais = new AbsIfStmt(cond, then, abs);
                 ais.setBeg(i, ileft, iright);
                 ais.setEnd(then);
                 RESULT = ais;
@@ -658,13 +673,22 @@ if_stmt ::=
             :};
 
 while_stmt ::=
-            WHILE val_expr:cond DO stmt:stmt
+            WHILE:w val_expr:cond DO stmt:stmt
             {:
-                RESULT = new AbsWhileStmt(cond, stmt);
+                AbsWhileStmt aws = new AbsWhileStmt(cond, stmt);
+                aws.setBeg(w, wleft, wright);
+                aws.setEnd(stmt);
+                RESULT = aws;
             :};
 
 for_stmt ::=
-            FOR IDENTIFIER:name ASSIGN val_expr:v1 TO val_expr:v2 DO stmt:stmt
+            FOR:f IDENTIFIER:name ASSIGN val_expr:v1 TO val_expr:v2 DO stmt:stmt
             {:
-                RESULT = new AbsForStmt(new AbsValName(name), v1, v2, stmt);
+                AbsValName avn = new AbsValName(name);
+                avn.setPos(name, nameleft, nameright);
+
+                AbsForStmt afs = new AbsForStmt(avn, v1, v2, stmt);
+                afs.setBeg(f, fleft, fright);
+                afs.setEnd(stmt);
+                RESULT = afs;
             :};
