@@ -51,6 +51,7 @@ non terminal AbsVarDecl var_declaration;
 non terminal AbsFunDecl function_declaration;
 non terminal AbsProcDecl procedure_declaration;
 non terminal AbsValExprs arguments_list;
+non terminal AbsValExprs parameters_call;
 non terminal AbsDecls components_list;
 non terminal AbsTypeDecl component;
 non terminal AbsDecls parameters;
@@ -241,14 +242,14 @@ val_expr ::=
                 abe.setEnd(v2, v2left, v2right);
                 RESULT = abe;
             :}
-        |   IDENTIFIER:name LPARENTHESIS arguments_list:args RPARENTHESIS:rp
+        |   IDENTIFIER:name parameters_call:args
             {:
                 AbsValName avn = new AbsValName(name);
                 avn.setPos(name, nameleft, nameright);
 
                 AbsCallExpr ace = new AbsCallExpr(avn, args);
-                ace.setBeg(avn);
-                ace.setEnd(rp, rpleft, rpright);
+                ace.setPos(args);
+                RESULT = ace;
             :}
         |   LBRACKET:lb type_expr:t RBRACKET:rb
             {:
@@ -341,8 +342,16 @@ component ::=
                 RESULT = atd;
             :};
 
+parameters_call ::= LPARENTHESIS arguments_list:vals RPARENTHESIS {: RESULT = vals; :};
+
 arguments_list ::=
-            val_expr:e COMMA arguments_list:aves
+            eps:e
+            {:
+                AbsValExprs aves = new AbsValExprs();
+                aves.setPos("", eleft, eright);
+                RESULT = aves;
+            :}
+        |   val_expr:e COMMA arguments_list:aves
             {:
                 aves.exprs.add(0, e);
                 aves.setBeg(e);
@@ -353,12 +362,6 @@ arguments_list ::=
                 AbsValExprs aves = new AbsValExprs();
                 aves.exprs.add(e);
                 aves.setPos(e);
-                RESULT = aves;
-            :}
-        |   eps:e
-            {:
-                AbsValExprs aves = new AbsValExprs();
-                aves.setPos(e, eleft, eright);
                 RESULT = aves;
             :};
 
@@ -510,21 +513,32 @@ subroutine_declarations ::=
         |   function_declaration:d
             {:
                 AbsDecls ds = new AbsDecls();
+                ds.setPos(d);
                 ds.decls.add(d);
                 RESULT = ds;
             :}
         |   procedure_declaration:d
             {:
                 AbsDecls ds = new AbsDecls();
+                ds.setPos(d);
                 ds.decls.add(d);
                 RESULT = ds;
             :};
 
 procedure_declaration ::=
-            PROCEDURE IDENTIFIER:name LPARENTHESIS parameters:pars RPARENTHESIS SEMIC declarations:decls BEGIN stmt_opt:stmt END SEMIC
+            PROCEDURE:p IDENTIFIER:name LPARENTHESIS parameters:pars RPARENTHESIS SEMIC declarations:decls BEGIN:b stmt_opt:stmt END:e SEMIC
             {:
+                AbsDeclName adn = new AbsDeclName(name);
+                adn.setPos(name, nameleft, nameright);
+
                 AbsBlockStmt abs = new AbsBlockStmt(stmt);
-                RESULT = new AbsProcDecl(new AbsDeclName(name), pars, decls, abs);
+                abs.setBeg(b, bleft, bright);
+                abs.setEnd(e, eleft, eright);
+
+                AbsProcDecl apd = new AbsProcDecl(adn, pars, decls, abs);
+                apd.setBeg(p, pleft, pright);
+                apd.setEnd(e, eleft, eright);
+                RESULT = apd;
             :};
 
 function_declaration ::=
@@ -538,18 +552,34 @@ parameters ::=
             parameters:ps SEMIC parameter:p
             {:
                 ps.decls.add(p);
+                ps.setEnd(p);
                 RESULT = ps;
             :}
         |   parameter:p
             {:
                 AbsDecls ps = new AbsDecls();
+                ps.setPos(p);
                 ps.decls.add(p);
                 RESULT = ps;
             :}
-        |   {: RESULT = new AbsDecls(); :};
+        |   eps:e
+            {:
+                AbsDecls ads = new AbsDecls();
+                ads.setPos("", eleft, eright);
+                RESULT = ads;
+            :};
 
 parameter ::=
-            IDENTIFIER:name COLON type_expr:type {: RESULT = new AbsVarDecl(new AbsDeclName(name), type); :};
+            IDENTIFIER:name COLON type_expr:type
+            {:
+                AbsDeclName adn = new AbsDeclName(name);
+                adn.setPos(name, nameleft, nameright);
+
+                AbsVarDecl avd = new AbsVarDecl(adn, type);
+                avd.setBeg(name, nameleft, nameright);
+                avd.setEnd(type);
+                RESULT = avd;
+            :};
 
 main_block ::=
             BEGIN:b stmt_opt:stmt END:e DOT:d
