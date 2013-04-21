@@ -55,7 +55,7 @@ non terminal AbsDecls components_list;
 non terminal AbsTypeDecl component;
 non terminal AbsDecls parameters;
 non terminal AbsVarDecl parameter;
-non terminal AbsTree eps;
+non terminal String eps;
 
 precedence left AND;
 precedence left OR;
@@ -74,11 +74,10 @@ eps ::= ;
 source ::= PROGRAM:prog IDENTIFIER:name SEMIC:s declarations:decls main_block:body
             {:
                 AbsDeclName pname = new AbsDeclName(name);
-                pname.setBeg(prog, progleft, progright);
-                pname.setEnd(s, sleft, sright);
+                pname.setPos(name, nameleft, nameright);
 
                 AbsProgram p = new AbsProgram(pname, decls, body);
-                p.setBeg(pname);
+                p.setBeg(prog, progleft, progright);
                 p.setEnd(body);
                 RESULT = p;
             :}
@@ -109,8 +108,20 @@ val_expr ::=
                 anc.setPos(n, nleft, nright);
                 RESULT = anc;
             :}
-        |   PTR val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.MEM, v); :}
-        |   ADD val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.ADD, v); :}
+        |   PTR:p val_expr:v
+            {:
+                AbsUnExpr aue = new AbsUnExpr(AbsUnExpr.MEM, v);
+                aue.setBeg(p, pleft, pright);
+                aue.setEnd(v);
+                RESULT = aue;
+            :}
+        |   ADD:a val_expr:v
+            {:
+                AbsUnExpr aue = new AbsUnExpr(AbsUnExpr.ADD, v);
+                aue.setBeg(a, aleft, aright);
+                aue.setEnd(v);
+                RESULT = aue;
+            :}
         |   SUB:s val_expr:v
             {:
                 AbsUnExpr aue = new AbsUnExpr(AbsUnExpr.SUB, v);
@@ -118,45 +129,182 @@ val_expr ::=
                 aue.setEnd(v); 
                 RESULT = aue;
             :}
-        |   NOT val_expr:v {: RESULT = new AbsUnExpr(AbsUnExpr.NOT, v); :}
-        |   val_expr:v PTR {: RESULT = new AbsUnExpr(AbsUnExpr.VAL, v); :}
-        |   val_expr:v1 MUL val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.MUL, v1, v2); :}
-        |   val_expr:v1 DIV val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.DIV, v1, v2); :}
-        |   val_expr:v1 ADD val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.ADD, v1, v2); :}
-        |   val_expr:v1 SUB val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.SUB, v1, v2); :}
-        |   val_expr:v1 EQU val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.EQU, v1, v2); :}
-        |   val_expr:v1 NEQ val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.NEQ, v1, v2); :}
-        |   val_expr:v1 GTH val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.GTH, v1, v2); :}
-        |   val_expr:v1 LTH val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.LTH, v1, v2); :}
-        |   val_expr:v1 GEQ val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.GEQ, v1, v2); :}
-        |   val_expr:v1 LEQ val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.LEQ, v1, v2); :}
-        |   val_expr:v1 AND val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.AND, v1, v2); :}
-        |   val_expr:v1 OR val_expr:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.OR, v1, v2); :}
-        |   val_expr:v1 LBRACKET val_expr:v2 RBRACKET {: RESULT = new AbsBinExpr(AbsBinExpr.ARRACCESS, v1, v2); :}
-        |   val_expr:v1 DOT IDENTIFIER:v2 {: RESULT = new AbsBinExpr(AbsBinExpr.RECACCESS, v1, new AbsValName(v2)); :}
-        |   IDENTIFIER:name LPARENTHESIS arguments_list:args RPARENTHESIS {: RESULT = new AbsCallExpr(new AbsValName(name), args); :}
-        |   LBRACKET type_expr:t RBRACKET {: RESULT = new AbsAlloc(t); :}
+        |   NOT:n val_expr:v
+            {:
+                AbsUnExpr aue = new AbsUnExpr(AbsUnExpr.NOT, v);
+                aue.setBeg(n, nleft, nright);
+                aue.setEnd(v);
+                RESULT = aue;
+            :}
+        |   val_expr:v PTR:p
+            {:
+                AbsUnExpr aue = new AbsUnExpr(AbsUnExpr.VAL, v);
+                aue.setBeg(v);
+                aue.setEnd(p, pleft, pright);
+                RESULT = aue;
+            :}
+        |   val_expr:v1 MUL val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.MUL, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 DIV val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.DIV, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 ADD val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.ADD, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 SUB val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.SUB, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 EQU val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.EQU, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 NEQ val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.NEQ, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 GTH val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.GTH, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 LTH val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.LTH, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 GEQ val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.GEQ, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 LEQ val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.LEQ, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 AND val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.AND, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 OR val_expr:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.OR, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(v2);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 LBRACKET val_expr:v2 RBRACKET:rb
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.ARRACCESS, v1, v2);
+                abe.setBeg(v1);
+                abe.setEnd(rb, rbleft, rbright);
+                RESULT = abe;
+            :}
+        |   val_expr:v1 DOT IDENTIFIER:v2
+            {:
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.RECACCESS, v1, new AbsValName(v2));
+                abe.setBeg(v1);
+                abe.setEnd(v2, v2left, v2right);
+                RESULT = abe;
+            :}
+        |   IDENTIFIER:name LPARENTHESIS arguments_list:args RPARENTHESIS:rp
+            {:
+                AbsValName avn = new AbsValName(name);
+                avn.setPos(name, nameleft, nameright);
+
+                AbsCallExpr ace = new AbsCallExpr(avn, args);
+                ace.setBeg(avn);
+                ace.setEnd(rp, rpleft, rpright);
+            :}
+        |   LBRACKET:lb type_expr:t RBRACKET:rb
+            {:
+                AbsAlloc aa = new AbsAlloc(t);
+                aa.setBeg(lb, lbleft, lbright);
+                aa.setEnd(rb, rbleft, rbright);
+                RESULT = aa;
+            :}
         |   LPARENTHESIS val_expr:v RPARENTHESIS {: RESULT = v; :}
-        |   IDENTIFIER:id  {: RESULT = new AbsValName(id); :};
+        |   IDENTIFIER:id
+            {:
+                AbsValName avn = new AbsValName(id);
+                avn.setPos(id, idleft, idright);
+                RESULT = avn;
+            :};
         
 type_expr ::=
-            BOOL:t {: RESULT = new AbsAtomType(AbsAtomType.BOOL); :}
-        |   CHAR:t {: RESULT = new AbsAtomType(AbsAtomType.CHAR); :}
-        |   INT:t {: RESULT = new AbsAtomType(AbsAtomType.INT); :}
-        |   IDENTIFIER:t {: RESULT = new AbsTypeName(t); :}
+            BOOL:t
+            {:  AbsAtomType aat = new AbsAtomType(AbsAtomType.BOOL);
+                aat.setPos(t,tleft,tright);
+                RESULT = aat;
+            :}
+        |   CHAR:t
+            {:  AbsAtomType aat = new AbsAtomType(AbsAtomType.CHAR);
+                aat.setPos(t,tleft,tright);
+                RESULT = aat;
+            :}
+        |   INT:t
+            {:  AbsAtomType aat = new AbsAtomType(AbsAtomType.INT);
+                aat.setPos(t,tleft,tright);
+                RESULT = aat;
+            :}
+        |   IDENTIFIER:t
+            {:  AbsTypeName atn = new AbsTypeName(t);
+                atn.setPos(t,tleft,tright);
+                RESULT = atn;
+            :}
         |   ARRAY:arr LBRACKET val_expr:v1 DOTS val_expr:v2 RBRACKET OF type_expr:t
             {:
                 AbsArrayType aat = new AbsArrayType(t, v1, v2);
+                aat.setBeg(arr, arrleft, arrright);
+                aat.setEnd(t);
                 RESULT = aat;
             :}
         |   RECORD:r components_list:vars END:e
             {:
                 AbsRecordType art = new AbsRecordType(vars);
+                art.setBeg(r, rleft, rright);
+                art.setEnd(e, eleft, eright);
                 RESULT = art;
             :}
-        |   PTR type_expr:t
+        |   PTR:p type_expr:t
             {:
                 AbsPointerType apt = new AbsPointerType(t);
+                apt.setBeg(p, pleft, pright);
+                apt.setEnd(t);
                 RESULT = apt;
             :}
         |   LPARENTHESIS type_expr:t RPARENTHESIS
@@ -175,7 +323,7 @@ components_list ::=
         |   component:c
             {:
                 AbsDecls ad = new AbsDecls();
-                ad.decls.add(c);
+                ad.decls.add(0, c);
                 ad.setBeg(c);
                 ad.setEnd(c);
                 RESULT = ad;
@@ -196,17 +344,21 @@ component ::=
 arguments_list ::=
             val_expr:e COMMA arguments_list:aves
             {:
-                aves.exprs.add(e);
+                aves.exprs.add(0, e);
+                aves.setBeg(e);
                 RESULT = aves;
             :}
         |   val_expr:e
             {:
                 AbsValExprs aves = new AbsValExprs();
                 aves.exprs.add(e);
+                aves.setPos(e);
                 RESULT = aves;
             :}
-        |   {:
+        |   eps:e
+            {:
                 AbsValExprs aves = new AbsValExprs();
+                aves.setPos(e, eleft, eright);
                 RESULT = aves;
             :};
 
@@ -229,18 +381,26 @@ declarations ::=
 
 const_declarations_opt ::=
             CONST const_declarations:d {: RESULT = d; :}
-        |   {: RESULT = new AbsDecls(); :};
+        |   eps:e
+            {:
+                AbsDecls ads = new AbsDecls();
+                ads.setPos("", eleft, eright);
+                RESULT = ads;
+            :};
 
 const_declarations ::=
             const_declarations:ds const_declaration:d
             {:
                 ds.decls.add(d);
+                ds.setEnd(d);
                 RESULT = ds;
             :}
         |   const_declaration:d
             {:
                 AbsDecls ds = new AbsDecls();
                 ds.decls.add(d);
+                ds.setBeg(d);
+                ds.setEnd(d);
                 RESULT = ds;
             :}
         ;
@@ -253,13 +413,18 @@ const_declaration ::=
                 
                 AbsConstDecl d = new AbsConstDecl(adn, v);
                 d.setBeg(name, nameleft, nameright);
-                d.setEnd(s, sleft, sright);
+                d.setEnd(v);
                 RESULT = d;
             :};
 
 type_declarations_opt ::=
             TYPE type_declarations:t {: RESULT = t; :}
-        |   {: RESULT = new AbsDecls(); :};
+        |   eps:e
+            {:
+                AbsDecls ads = new AbsDecls();
+                ads.setPos("", eleft, eright);
+                RESULT = ads;
+            :};
 
 type_declarations ::=
             type_declarations:ds type_declaration:d
@@ -277,39 +442,59 @@ type_declarations ::=
 type_declaration ::=
             IDENTIFIER:name EQU type_expr:type SEMIC
             {:
-                AbsTypeDecl atd = new AbsTypeDecl(new AbsDeclName(name), type);
+                AbsDeclName adn = new AbsDeclName(name);
+                adn.setPos(name, nameleft, nameright);
+
+                AbsTypeDecl atd = new AbsTypeDecl(adn, type);
+                atd.setBeg(name, nameleft, nameright);
+                atd.setEnd(type); 
                 RESULT = atd;
             :};
 
 var_declarations_opt ::=
             VAR var_declarations:vars {: RESULT = vars; :}
-        |   {: RESULT = new AbsDecls(); :};
+        |   eps:e
+            {:
+                AbsDecls ads = new AbsDecls();
+                ads.setPos("", eleft, eright);
+                RESULT = ads;
+            :};
 
 var_declarations ::=
             var_declarations:ds var_declaration:d
             {:
                 ds.decls.add(d);
+                ds.setEnd(d);
                 RESULT = ds;
             :}
         |   var_declaration:d
             {:
                 AbsDecls ds = new AbsDecls();
                 ds.decls.add(d);
+                ds.setPos(d);
                 RESULT = ds;
             :};
 
 var_declaration ::=
             IDENTIFIER:name COLON type_expr:type SEMIC:s
             {:
-                AbsVarDecl avd = new AbsVarDecl(new AbsDeclName(name), type);
+                AbsDeclName adn = new AbsDeclName(name);
+                adn.setPos(name, nameleft, nameright);
+
+                AbsVarDecl avd = new AbsVarDecl(adn, type);
                 avd.setBeg(name, nameleft, nameright);
-                avd.setEnd(s, sleft, sright);
+                avd.setEnd(type);
                 RESULT = avd;
             :};
 
 subroutine_declarations_opt ::=
             subroutine_declarations:decls {: RESULT = decls; :}
-        |   {: RESULT = new AbsDecls(); :};
+        |   eps:e
+            {:
+                AbsDecls ads = new AbsDecls();
+                ads.setPos("", eleft, eright);
+                RESULT = ads;
+            :};
 
 subroutine_declarations ::=
             subroutine_declarations:ds function_declaration:d
@@ -367,11 +552,11 @@ parameter ::=
             IDENTIFIER:name COLON type_expr:type {: RESULT = new AbsVarDecl(new AbsDeclName(name), type); :};
 
 main_block ::=
-            BEGIN:b stmt_opt:stmt END DOT:d
+            BEGIN:b stmt_opt:stmt END:e DOT:d
             {:
                 AbsBlockStmt abs = new AbsBlockStmt(stmt);
                 abs.setBeg(b, bleft, bright);
-                abs.setEnd(d, dleft, dright);
+                abs.setEnd(e, eleft, eright);
                 RESULT = abs;
             :};
 
@@ -403,7 +588,7 @@ stmt ::=
 stmt_opt ::=
             stmt:s SEMIC stmt_opt:ss
             {:
-                ss.stmts.add(s);
+                ss.stmts.add(0, s);
                 ss.setBeg(s);
                 RESULT = ss;
             :}
