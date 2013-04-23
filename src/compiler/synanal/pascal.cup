@@ -237,7 +237,10 @@ val_expr ::=
             :}
         |   val_expr:v1 DOT IDENTIFIER:v2
             {:
-                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.RECACCESS, v1, new AbsValName(v2));
+                AbsValName avn = new AbsValName(v2);
+                avn.setPos(v2, v2left, v2right);
+                
+                AbsBinExpr abe = new AbsBinExpr(AbsBinExpr.RECACCESS, v1, avn);
                 abe.setBeg(v1);
                 abe.setEnd(v2, v2left, v2right);
                 RESULT = abe;
