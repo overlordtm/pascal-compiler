@@ -79,6 +79,10 @@ function f3(one: integer):integer;
 
 begin
 
+    bool := -10 + 1 * 8 = 11;
+    
+    bool := not t or t;
+
     int := one + f2();
 
     p1(one);
@@ -115,6 +119,7 @@ prekrijejo vse deklaracije istih imen v vseh zunanjih obmocjih vidnosti.}
 
 {Deklaracije imena podprograma ni mogoce prekriti v lokalnem obmocju vidnosti imen,
 ki se zacne takoj za imenom podprograma.}
+{OK}
 
 {Vsa imena konstant, tipov, spremenljivk in podprogramov so v istem podrocje deklaracij
 ne glede na obmocje vidnosti.}

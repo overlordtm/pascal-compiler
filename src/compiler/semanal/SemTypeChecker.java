@@ -260,17 +260,15 @@ public class SemTypeChecker implements AbsVisitor {
 
 	@Override
 	public void visit(AbsForStmt acceptor) {
-
 		acceptor.name.accept(this);
-
 		AbsDecl iter = SemDesc.getNameDecl(acceptor.name);
 		SemType iterType = SemDesc.getActualType(iter);
 		
 		acceptor.loBound.accept(this);
 		acceptor.hiBound.accept(this);
 
-		SemType lo = SemDesc.getActualType(acceptor.loBound);
-		SemType hi = SemDesc.getActualType(acceptor.hiBound);
+		SemType loType = SemDesc.getActualType(acceptor.loBound);
+		SemType hitype = SemDesc.getActualType(acceptor.hiBound);
 
 		if (iterType == null) {
 			error("Unknown iterator type", acceptor.name);
@@ -278,15 +276,15 @@ public class SemTypeChecker implements AbsVisitor {
 			error("Integer expected", acceptor.name);
 		}
 
-		if (lo == null) {
+		if (loType == null) {
 			error("Unknown lo bound type", acceptor.loBound);
-		} else if (!lo.coercesTo(typeInt)) {
+		} else if (!loType.coercesTo(typeInt)) {
 			error("Integer expected", acceptor.loBound);
 		}
 
-		if (hi == null) {
+		if (hitype == null) {
 			error("Unknown hi bound type", acceptor.hiBound);
-		} else if (!hi.coercesTo(typeInt)) {
+		} else if (!hitype.coercesTo(typeInt)) {
 			error("Integer expected", acceptor.hiBound);
 		}
 
@@ -298,15 +296,15 @@ public class SemTypeChecker implements AbsVisitor {
 		acceptor.pars.accept(this);
 		acceptor.type.accept(this);
 
-		SemType resultType = SemDesc.getActualType(acceptor.type);
-		SemSubprogramType type = new SemSubprogramType(resultType);
+		SemType retType = SemDesc.getActualType(acceptor.type);
+		SemSubprogramType type = new SemSubprogramType(retType);
 
 		for (AbsDecl decl : acceptor.pars.decls) {
 			SemType paramType = SemDesc.getActualType(decl);
 			if (paramType != null) {
 				type.addParType(paramType);
 			} else {
-				error("Unknown type", acceptor);
+				error("Unknown function parameter type", decl);
 			}
 		}
 
@@ -355,7 +353,7 @@ public class SemTypeChecker implements AbsVisitor {
 			if (paramType != null) {
 				type.addParType(paramType);
 			} else {
-				error("Unknown type", acceptor);
+				error("Unknown procedure parameter type", decl);
 			}
 		}
 		SemDesc.setActualType(acceptor, type);
