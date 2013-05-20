@@ -77,6 +77,11 @@ public class FrmFrame implements XMLable {
 
 	/** Velikost klicnega zapisa.  */
 	public int size() {
+//		System.err.println(label.name() + ": sizeLocs: " + sizeLocs +
+//				"  sizeFPRA: " + sizeFPRA +
+//				"  sizeTmps: " + sizeTmps +
+//				"  sizeRegs: " + sizeRegs +
+//				"  sizeArgs: " + sizeArgs);
 		return sizeLocs + sizeFPRA + sizeTmps + sizeRegs + sizeArgs;
 	}
 
