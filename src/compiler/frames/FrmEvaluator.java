@@ -47,6 +47,8 @@ public class FrmEvaluator implements AbsVisitor {
 	}
 
 	public void visit(AbsProgram acceptor) {
+		FrmFrame frame = new FrmFrame(acceptor, -1);
+		
 		for (AbsDecl decl : acceptor.decls.decls) {
 			if (decl instanceof AbsVarDecl) {
 				AbsVarDecl varDecl = (AbsVarDecl) decl;
@@ -55,7 +57,15 @@ public class FrmEvaluator implements AbsVisitor {
 			}
 			decl.accept(this);
 		}
-		// acceptor.stmt.accept(this);
+		
+        activeFrame = frame;
+        hasSubCall = false;
+        acceptor.stmt.accept(this);//main
+        //frame.sizeArgs = sizeArgs;
+        if(hasSubCall) {
+        	activeFrame.sizeArgs += 4;
+        }
+        FrmDesc.setFrame(acceptor, frame);
 	}
 
 	public void visit(AbsProcDecl acceptor) {

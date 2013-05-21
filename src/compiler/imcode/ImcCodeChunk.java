@@ -23,6 +23,7 @@ public class ImcCodeChunk extends ImcChunk {
 
 	@Override
 	public void toXML(PrintStream xml) {
+//		System.out.println(frame + " " + imcode + " " + lincode);
 		xml.print("<codechunk value=\"" + frame.label.name() + "\">\n");
 		frame.toXML(xml);
 		if (lincode == null) imcode.toXML(xml); else lincode.toXML(xml);

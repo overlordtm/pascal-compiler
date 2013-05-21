@@ -59,5 +59,11 @@ public class Main {
 		IMCodeGenerator code = new IMCodeGenerator();
 		program.accept(code);
 		chunks = code.chunks;
+		
+		PrintStream xml = XML.open("imc");
+		for (ImcChunk c : chunks) {
+			c.toXML(xml);
+		}
+		XML.close("imc", xml);
 	}
 }
