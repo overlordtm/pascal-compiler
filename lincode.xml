@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="xsl/lincode.xsl"?>
+<lincode>
+<datachunk label="_zoki" size="4"/>
+<datachunk label="_zoki2" size="4"/>
+<datachunk label="_aa" size="40"/>
+<codechunk value="_main">
+<frmnode>
+<frm kind="level" value="-1"/>
+<frm kind="label" value="_main"/>
+<frm kind="size" value="8"/>
+<frm kind="FP" value="T0"/>
+</frmnode>
+<imcnode kind="SEQ">
+<imcnode kind="MOVE">
+<imcnode kind="NAME" value="_zoki"/>
+<imcnode kind="CONST" value="1"/>
+</imcnode>
+<imcnode kind="CJUMP" value="L1,L3">
+<imcnode kind="BINOP" value="&#62;">
+<imcnode kind="CONST" value="1"/>
+<imcnode kind="CONST" value="10"/>
+</imcnode>
+</imcnode>
+<imcnode kind="LABEL" value="L3"/>
+<imcnode kind="JUMP" value="L2"/>
+<imcnode kind="LABEL" value="L2"/>
+<imcnode kind="CJUMP" value="L0,L4">
+<imcnode kind="BINOP" value="&#60;=">
+<imcnode kind="NAME" value="_zoki"/>
+<imcnode kind="CONST" value="10"/>
+</imcnode>
+</imcnode>
+<imcnode kind="LABEL" value="L4"/>
+<imcnode kind="JUMP" value="L1"/>
+<imcnode kind="LABEL" value="L0"/>
+<imcnode kind="MOVE">
+<imcnode kind="NAME" value="_zoki2"/>
+<imcnode kind="MEM">
+<imcnode kind="BINOP" value="+">
+<imcnode kind="NAME" value="_aa"/>
+<imcnode kind="BINOP" value="*">
+<imcnode kind="BINOP" value="-">
+<imcnode kind="MEM">
+<imcnode kind="NAME" value="_aa"/>
+</imcnode>
+<imcnode kind="CONST" value="1"/>
+</imcnode>
+<imcnode kind="CONST" value="4"/>
+</imcnode>
+</imcnode>
+</imcnode>
+</imcnode>
+<imcnode kind="MOVE">
+<imcnode kind="BINOP" value="+">
+<imcnode kind="NAME" value="_zoki"/>
+<imcnode kind="CONST" value="1"/>
+</imcnode>
+<imcnode kind="NAME" value="_zoki"/>
+</imcnode>
+<imcnode kind="JUMP" value="L2"/>
+<imcnode kind="LABEL" value="L1"/>
+</imcnode>
+</codechunk>
+</lincode>
