@@ -12,14 +12,16 @@ public class IMCodeGenerator implements AbsVisitor {
 
 	public static LinkedList<ImcChunk> chunks = new LinkedList<ImcChunk>();
 	ImcCode code;
-	private boolean inMem;
+	private boolean inMem = true;
 
 	@Override
 	public void visit(AbsAlloc acceptor) {
 		ImcCALL malloc = new ImcCALL(FrmLabel.newLabel("malloc"));
 		int argSize = SemDesc.getActualType(acceptor.type).size();
+		malloc.args.add(new ImcCONST(SysLib.FAKE_FP));
+		malloc.size.add(4);
 		malloc.args.add(new ImcCONST(argSize));
-
+		malloc.size.add(4);
 		code = (ImcCode) malloc;
 	}
 
@@ -96,7 +98,7 @@ public class IMCodeGenerator implements AbsVisitor {
 			        .getActualType(acceptor.fstExpr);
 
 			inMem = true;
-			acceptor.fstExpr.accept(this);
+			acceptor.sndExpr.accept(this);
 			ImcExpr index = (ImcExpr) code;
 			inMem = false;
 
@@ -127,11 +129,21 @@ public class IMCodeGenerator implements AbsVisitor {
 	@Override
 	public void visit(AbsCallExpr acceptor) {
 		FrmFrame frm = FrmDesc.getFrame(SemDesc.getNameDecl(acceptor.name));
-		ImcCALL call = new ImcCALL(frm.label);
-		call.args.add(new ImcTEMP(frm.FP));
+		ImcCALL call;
+		if (SysLib.hasMethod(acceptor.name.name)) {
+			call = new ImcCALL(FrmLabel.newLabel(acceptor.name.name));
+			call.args.add(new ImcCONST(SysLib.FAKE_FP));
+			call.size.add(4);
+		} else {
+			call = new ImcCALL(frm.label);
+			call.args.add(new ImcTEMP(frm.FP));
+			call.size.add(4);
+		}
+
 		for (AbsValExpr expr : acceptor.args.exprs) {
 			expr.accept(this);
 			call.args.add((ImcExpr) code);
+			call.size.add(4);
 		}
 		code = call;
 	}
@@ -184,8 +196,8 @@ public class IMCodeGenerator implements AbsVisitor {
 		seq.stmts.add(lTrue);
 		acceptor.stmt.accept(this);
 		seq.stmts.add((ImcStmt) code); // do actual stuff
-		seq.stmts.add(new ImcMOVE(new ImcBINOP(ImcBINOP.ADD, count,
-		        new ImcCONST(1)), count)); // i++
+		seq.stmts.add(new ImcMOVE(count, new ImcBINOP(ImcBINOP.ADD, count,
+		        new ImcCONST(1)))); // i++
 		seq.stmts.add(new ImcJUMP(lStart.label)); // goto start
 		seq.stmts.add(lFalse);
 
@@ -242,7 +254,7 @@ public class IMCodeGenerator implements AbsVisitor {
 	@Override
 	public void visit(AbsProgram acceptor) {
 		// ImcDataChunk vsebuje opis globalne spremenljivke.
-		
+
 		for (AbsDecl decl : acceptor.decls.decls) {
 			if (decl instanceof AbsVarDecl) { // global vars
 				AbsVarDecl varDecl = (AbsVarDecl) decl;
@@ -357,7 +369,8 @@ public class IMCodeGenerator implements AbsVisitor {
 			if (type instanceof SemRecordType || type instanceof SemArrayType) {
 				code = new ImcMEM((ImcExpr) code);
 			}
-		} else if (decl instanceof AbsConstDecl) {
+		}
+		if (decl instanceof AbsConstDecl) {
 			code = new ImcCONST(SemDesc.getActualConst(decl));
 		}
 	}

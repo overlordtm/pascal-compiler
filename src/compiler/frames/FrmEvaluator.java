@@ -93,6 +93,7 @@ public class FrmEvaluator implements AbsVisitor {
 			frame.sizeArgs += 4;
 		}
 		FrmDesc.setFrame(acceptor, frame);
+		activeFrame = null;
 	}
 
 	public void visit(AbsRecordType acceptor) {

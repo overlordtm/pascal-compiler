@@ -8,7 +8,7 @@ import compiler.imcode.*;
 
 public class Interpreter {
 
-	int debug = 1;
+	int debug = 0;
 
 	/** Pomnilnik.  */
 	public HashMap<Integer,Integer> memory = new HashMap<Integer,Integer>();
@@ -65,7 +65,7 @@ public class Interpreter {
 			return 0;
 		}
 		if (label.equals("_getch")) {
-			return (new Scanner(System.in)).nextInt();
+			return (int)(new Scanner(System.in)).next().charAt(0);
 		}
 		if (label.equals("_getint")) {
 			return (new Scanner(System.in)).nextInt();
@@ -155,6 +155,7 @@ public class Interpreter {
 				ST(dst, src);
 				return null;
 			}
+			move.toXML(System.out);
 			Report.error("Illegal MOVE statement.", 0);
 		}
 		Report.error("Unknown statement: " + stmt, 0);

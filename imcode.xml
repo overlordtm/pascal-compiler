@@ -12,51 +12,9 @@
 <frm kind="FP" value="T0"/>
 </frmnode>
 <imcnode kind="SEQ">
-<imcnode kind="SEQ">
 <imcnode kind="MOVE">
 <imcnode kind="NAME" value="_zoki"/>
-<imcnode kind="CONST" value="1"/>
-</imcnode>
-<imcnode kind="CJUMP" value="L1,L2">
-<imcnode kind="BINOP" value="&#62;">
-<imcnode kind="CONST" value="1"/>
-<imcnode kind="CONST" value="10"/>
-</imcnode>
-</imcnode>
-<imcnode kind="LABEL" value="L2"/>
-<imcnode kind="CJUMP" value="L0,L1">
-<imcnode kind="BINOP" value="&#60;=">
-<imcnode kind="NAME" value="_zoki"/>
-<imcnode kind="CONST" value="10"/>
-</imcnode>
-</imcnode>
-<imcnode kind="LABEL" value="L0"/>
-<imcnode kind="MOVE">
-<imcnode kind="NAME" value="_zoki2"/>
-<imcnode kind="MEM">
-<imcnode kind="BINOP" value="+">
-<imcnode kind="NAME" value="_aa"/>
-<imcnode kind="BINOP" value="*">
-<imcnode kind="BINOP" value="-">
-<imcnode kind="MEM">
-<imcnode kind="NAME" value="_aa"/>
-</imcnode>
-<imcnode kind="CONST" value="1"/>
-</imcnode>
-<imcnode kind="CONST" value="4"/>
-</imcnode>
-</imcnode>
-</imcnode>
-</imcnode>
-<imcnode kind="MOVE">
-<imcnode kind="BINOP" value="+">
-<imcnode kind="NAME" value="_zoki"/>
-<imcnode kind="CONST" value="1"/>
-</imcnode>
-<imcnode kind="NAME" value="_zoki"/>
-</imcnode>
-<imcnode kind="JUMP" value="L2"/>
-<imcnode kind="LABEL" value="L1"/>
+<imcnode kind="CONST" value="42"/>
 </imcnode>
 </imcnode>
 </codechunk>
