@@ -110,6 +110,26 @@ public class IMCodeGenerator implements AbsVisitor {
 			code = new ImcMEM(new ImcBINOP(ImcBINOP.ADD, array, arrOffset));
 			inMem = true;
 			break;
+		case AbsBinExpr.MUL:
+			acceptor.fstExpr.accept(this);
+			ImcExpr fstExpr2 = (ImcExpr) code;
+			acceptor.sndExpr.accept(this);
+			ImcExpr sndExpr2 = (ImcExpr) code;
+
+			SemType type = SemDesc.getActualType(acceptor.fstExpr);
+
+			if(type instanceof SemAtomType) {
+				SemAtomType atomType = (SemAtomType) type;
+				if (atomType.type == SemAtomType.INT) {
+					code = new ImcBINOP(acceptor.oper, fstExpr2, sndExpr2);
+				} else {
+					code = new ImcBINOP(ImcBINOP.NEQ, fstExpr2, sndExpr2);
+				}
+			} else {
+				System.err.println("This should not happen");
+				code = new ImcBINOP(acceptor.oper, fstExpr2, sndExpr2);
+			}
+			break;
 		default:
 			acceptor.fstExpr.accept(this);
 			ImcExpr fstExpr = (ImcExpr) code;

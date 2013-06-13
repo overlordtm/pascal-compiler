@@ -103,10 +103,20 @@ public class SemTypeChecker implements AbsVisitor {
 			switch (acceptor.oper) {
 			case AbsBinExpr.ADD:
 			case AbsBinExpr.SUB:
-			case AbsBinExpr.MUL:
 			case AbsBinExpr.DIV:
 				if (ftype.coercesTo(stype)) {
 					if (ftype.coercesTo(typeInt)) {
+						SemDesc.setActualType(acceptor, ftype);
+					} else {
+						error("Do math with integers ;)", acceptor);
+					}
+				} else {
+					error("Type missmatch", acceptor);
+				}
+				break;
+			case AbsBinExpr.MUL:
+				if (ftype.coercesTo(stype)) {
+					if (ftype.coercesTo(typeInt) || ftype.coercesTo(typeBool)) {
 						SemDesc.setActualType(acceptor, ftype);
 					} else {
 						error("Do math with integers ;)", acceptor);
