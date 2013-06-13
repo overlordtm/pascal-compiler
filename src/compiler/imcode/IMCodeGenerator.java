@@ -361,9 +361,6 @@ public class IMCodeGenerator implements AbsVisitor {
 		if (decl instanceof AbsFunDecl) {
 			FrmFrame frame = FrmDesc.getFrame(decl);
 			code = new ImcTEMP(frame.RV);
-			if (inMem) {
-				code = new ImcMEM((ImcTEMP) code);
-			}
 
 			SemType type = SemDesc.getActualType(decl);
 			if (type instanceof SemRecordType || type instanceof SemArrayType) {

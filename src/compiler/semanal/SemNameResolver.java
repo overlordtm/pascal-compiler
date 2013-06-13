@@ -180,22 +180,17 @@ public class SemNameResolver implements AbsVisitor {
 
 	@Override
 	public void visit(AbsFunDecl acceptor) {
-		SemTable.newScope();
 		try {
 			SemTable.ins(acceptor.name.name, acceptor);
 		} catch (SemIllegalInsertException e) {
 			error("No overloading allowed dude!", acceptor.name);
 		}
+		SemTable.newScope();
 		acceptor.pars.accept(this);
 		acceptor.type.accept(this);
 		acceptor.decls.accept(this);
 		acceptor.stmt.accept(this);
 		SemTable.oldScope();
-		try {
-			SemTable.ins(acceptor.name.name, acceptor);
-		} catch (SemIllegalInsertException e) {
-			error("No overloading allowed dude!", acceptor.name);
-		}
 	}
 
 	@Override
@@ -217,22 +212,17 @@ public class SemNameResolver implements AbsVisitor {
 
 	@Override
 	public void visit(AbsProcDecl acceptor) {
-		SemTable.newScope();
 		try {
 			SemTable.ins(acceptor.name.name, acceptor);
 		} catch (SemIllegalInsertException e) {
 			error("No overloading allowed dude!", acceptor);
 		}
+		SemTable.newScope();
 		acceptor.name.accept(this);
 		acceptor.pars.accept(this);
 		acceptor.decls.accept(this);
 		acceptor.stmt.accept(this);
 		SemTable.oldScope();
-		try {
-			SemTable.ins(acceptor.name.name, acceptor);
-		} catch (SemIllegalInsertException e) {
-			error("No overloading allowed dude!", acceptor);
-		}
 	}
 
 	@Override

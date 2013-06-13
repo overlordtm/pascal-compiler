@@ -11,9 +11,5 @@ PascalTok.java
 *.jar
 *.war
 *.ear
-lexanal.xml
-synanal.xml
-abstree.xml
-pascal.pdf
-semanal.xml
-frames.xml
+*.xml
+*.pdf
