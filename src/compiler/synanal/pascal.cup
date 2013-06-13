@@ -561,6 +561,20 @@ function_declaration ::=
                 afd.setBeg(f, fleft, fright);
                 afd.setEnd(e, eleft, eright);
                 RESULT = afd;
+            :}
+        |   FUNCTION:f IDENTIFIER:name LPARENTHESIS parameters:pars RPARENTHESIS SEMIC declarations:decls BEGIN:b stmt_opt:stmt END:e SEMIC
+            {:
+                AbsDeclName adn = new AbsDeclName(name);
+                adn.setPos(name, nameleft, nameright);
+
+                AbsBlockStmt abs = new AbsBlockStmt(stmt);
+                abs.setBeg(b, bleft, bright);
+                abs.setEnd(e, eleft, eright);
+
+                AbsFunDecl afd = new AbsFunDecl(adn, pars, new AbsAtomType(AbsAtomType.INT), decls, abs);
+                afd.setBeg(f, fleft, fright);
+                afd.setEnd(e, eleft, eright);
+                RESULT = afd;
             :};
 
 parameters ::=

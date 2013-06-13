@@ -1,17 +1,14 @@
 program izpit1;
 
-var arr: array [1..3] of integer;
-    i: integer;
-
-function test(n: integer);
+function factrec(n: integer);
     begin
         if n < 1 then
-            test := 1
+            factrec := 1
         else
-            test := test(n-1) * n;
+            factrec := factrec(n-1) * n;
     end;
-    
-function test2(n: integer);
+
+function fact(n: integer);
     var acc: integer;
         i: integer;
 
@@ -19,18 +16,23 @@ function test2(n: integer);
         acc := 1;
         for i:=1 to n do
             acc := acc * i;
-        test := acc;
+        fact := acc;
     end;
 
 
 begin
-    putch('a');
+    putint(fact(-1));
+    putch(chr(10));
+    putint(factrec(-1));
     putch(chr(10));
     
-    i := test(10);
-    putint(i);
-        
+    putint(fact(1));
     putch(chr(10));
-    putch('b');
+    putint(factrec(1));
+    putch(chr(10));
+
+    putint(fact(5));
+    putch(chr(10));
+    putint(factrec(5));
     putch(chr(10));
 end.
