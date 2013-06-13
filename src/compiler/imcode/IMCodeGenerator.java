@@ -317,7 +317,8 @@ public class IMCodeGenerator implements AbsVisitor {
 			code = ((ImcMEM) code).expr;
 			break;
 		case AbsUnExpr.NOT:
-			code = new ImcBINOP(ImcBINOP.NEQ, (ImcExpr) code, (ImcExpr) code);
+			ImcExpr minus1 = new ImcBINOP(ImcBINOP.SUB, (ImcExpr)(new ImcCONST(0)), (ImcExpr) code);
+			code = new ImcBINOP(ImcBINOP.GEQ, minus1, (ImcExpr) (new ImcCONST(0)));
 			break;
 		}
 	}
