@@ -1,19 +1,15 @@
 program izpit3;
 
-var arr: array [1..3] of integer;
+const size = 3;
+
+var arr: array [2..size] of integer;
     i: integer;
 
 begin
-    putch('a');
-    putch(chr(10));
-    
-    for i:=1 to 10 do
-        arr[i] := i+64;
-    
-    for i:=1 to 10 do
+
+    for i:=2 to 3 do
+        arr[i] := 65;
+
+    for i:=2 to 3 do
         putch(chr(arr[i]));
-        
-    putch(chr(10));
-    putch('b');
-    putch(chr(10));
 end.

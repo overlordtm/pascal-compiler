@@ -13,6 +13,8 @@ public class IMCodeGenerator implements AbsVisitor {
 	public static LinkedList<ImcChunk> chunks = new LinkedList<ImcChunk>();
 	ImcCode code;
 	private boolean inMem = true;
+	private FrmLabel programExitLabel = FrmLabel.newLabel("program_exit");
+	private FrmLabel exceptionLabel = FrmLabel.newLabel("exception");
 
 	@Override
 	public void visit(AbsAlloc acceptor) {
@@ -107,8 +109,22 @@ public class IMCodeGenerator implements AbsVisitor {
 			ImcBINOP arrOffset = new ImcBINOP(ImcBINOP.MUL, arrIndex,
 			        new ImcCONST(arrayType.type.size()));
 
-			code = new ImcMEM(new ImcBINOP(ImcBINOP.ADD, array, arrOffset));
 			inMem = true;
+
+			// check bounds
+			ImcExpr loBoundCheck = new ImcBINOP(ImcBINOP.GEQ, index, new ImcCONST(arrayType.loBound));
+			ImcExpr hiBoundCheck = new ImcBINOP(ImcBINOP.LEQ, index, new ImcCONST(arrayType.hiBound));
+			ImcExpr cond = new ImcBINOP(ImcBINOP.AND, loBoundCheck, hiBoundCheck);
+
+			// dummy exit
+			ImcLABEL lExit = new ImcLABEL(FrmLabel.newLabel());
+			// access expression
+			ImcExpr expr = new ImcMEM(new ImcBINOP(ImcBINOP.ADD, array, arrOffset));
+
+			ImcSEQ seq = new ImcSEQ();
+			seq.stmts.add(new ImcCJUMP(cond, lExit.label, exceptionLabel)); // jump to exception if out of bounds
+			seq.stmts.add(lExit);
+			code = new ImcESEQ(seq, expr);
 			break;
 		default:
 			acceptor.fstExpr.accept(this);
@@ -269,9 +285,27 @@ public class IMCodeGenerator implements AbsVisitor {
 		// v obliki enega ImcMOVE ukaza, s katerim izraz funkcije priredimo
 		// zacasni spremenljivki RV.
 		acceptor.decls.accept(this); // deklaracija subrutin (fun in proc)
-
 		acceptor.stmt.accept(this); // main program
-		chunks.add(new ImcCodeChunk(FrmDesc.getFrame(acceptor), (ImcStmt) code));
+
+		ImcSEQ seq = new ImcSEQ();
+		seq.stmts.add((ImcStmt)code);
+		seq.stmts.add(new ImcJUMP(programExitLabel)); // jump to end
+		seq.stmts.add(new ImcLABEL(exceptionLabel)); // special handlers
+
+		String msg = "\n=============\nIndex out of bounds! Exiting\n=============\n";
+		
+		for (int i = 0; i < msg.length(); i++) {
+			ImcCALL call = new ImcCALL(FrmLabel.newLabel("putch"));
+			call.args.add(new ImcCONST(SysLib.FAKE_FP));
+			call.size.add(4);
+			call.args.add(new ImcCONST((int)msg.charAt(i)));
+			call.size.add(4);
+			seq.stmts.add(new ImcEXP(call));
+		}
+		seq.stmts.add(new ImcJUMP(programExitLabel)); // jump to end
+		seq.stmts.add(new ImcLABEL(programExitLabel)); // real end!
+
+		chunks.add(new ImcCodeChunk(FrmDesc.getFrame(acceptor), seq));
 	}
 
 	@Override
